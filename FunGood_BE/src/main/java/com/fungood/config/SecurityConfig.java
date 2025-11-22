@@ -19,7 +19,7 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/user/**").permitAll()
+                        .requestMatchers("/", "/user/**").permitAll()
                         .requestMatchers("/api/private/**").authenticated()
                         .anyRequest().denyAll());
         return http.build();
