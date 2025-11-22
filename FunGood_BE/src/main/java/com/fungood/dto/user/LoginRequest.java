@@ -1,4 +1,4 @@
-package com.fungood.dto;
+package com.fungood.dto.user;
 
 import lombok.Getter;
 import lombok.Setter;
