@@ -1,0 +1,48 @@
+/* Header */
+.header {
+  width: 100%;
+  height: 15vh;
+  background-color: #eee2d3;
+  display: flex;
+  flex-direction: column;
+  padding: 0 2rem;
+  box-sizing: border-box;
+  color: white;
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 70%;
+}
+
+.header-bottom {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  height: 30%;
+}
+
+.header-logo {
+  font-size: 2rem;
+  font-weight: bold;
+  color: white;
+  text-decoration: none;
+}
+
+.header-links a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  transition: opacity 0.2s;
+  margin: 1rem;
+}
+
+.header-links a:hover {
+  opacity: 0.8;
+}
+
+.header-links .active {
+  text-decoration: underline;
+}

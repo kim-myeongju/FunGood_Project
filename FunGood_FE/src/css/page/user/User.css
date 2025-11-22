@@ -1,0 +1,74 @@
+/* 공통 카드 박스 스타일 */
+.user-container {
+  font-size: 2rem;
+  color: #4a4a4a;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #eee2d3;
+}
+
+.user-box {
+  background-color: #ffffff;
+  padding: 2rem 3rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 400px;
+}
+
+/* 제목 */
+.user-box h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+/* 입력창 */
+.user-box input {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.user-box input:focus {
+  outline: none;
+  border-color: #70372c;
+}
+
+/* 버튼 */
+.user-box button {
+  width: 100%;
+  padding: 12px;
+  background-color: #70372c;
+  border: none;
+  color: white;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.user-box button:hover {
+  background-color: #eee2d3;
+}
+
+/* 다른 페이지로 이동 */
+.user-box .go-to-link {
+  margin-top: 1rem;
+  box-sizing: border-box;
+}
+
+.user-box .go-to-link .user-font {
+  font-size: 0.9rem;
+  text-decoration: none;
+  color: #4a4a4a;
+  padding: 0 1rem;
+}

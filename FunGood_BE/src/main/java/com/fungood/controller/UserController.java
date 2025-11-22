@@ -20,7 +20,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/signup")
-    public ResponseEntity<Map<String, Object>> signUp() {
+    public ResponseEntity<Map<String, Object>> signup() {
         // 회원가입 첫 요청 포트원 데이터 반환
         return null;
     }
