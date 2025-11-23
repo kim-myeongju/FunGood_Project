@@ -162,6 +162,7 @@ public class UserController {
     // 로그인 API
     @GetMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequest loginRequest) {
+        // 로그인 시작!
         User user = userService.login(loginRequest);
         return ResponseEntity.ok(Map.of("status", "로그인 성공", "userName", user.getUserName(), "role", user.getUserRole()));
     }
