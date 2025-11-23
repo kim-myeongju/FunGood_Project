@@ -1,12 +1,8 @@
 // 간편인증 컴포넌트
 import axios from "axios";
 import * as PortOne from "@portone/browser-sdk/v2";
-import { useNavigate } from "react-router-dom";
 
-function UserVerify() {
-
-    const navigate = useNavigate();
-
+function UserVerify({onVerified}) {
     const handleVerify = async () => {
         try {
             // 1. 백엔드에서 포트원 연동 정보 요청
@@ -37,22 +33,14 @@ function UserVerify() {
                 // identityVerificationTxId: portoneResponse.identityVerificationTxId,
             });
 
-            console.log("인증 결과: ", verifyRes.data);
+            const userVerifiedData = {
+                status: verifyRes.data.status,
+                name: verifyRes.data.name,
+                phone: verifyRes.data.phone,
+                birth: verifyRes.data.birth,
+            };
 
-            try {
-                const userVerifiedData = {
-                    status: verifyRes.data.status,
-                    name: verifyRes.data.name,
-                    phone: verifyRes.data.phone,
-                    birth: verifyRes.data.birth,
-                };
-
-                navigate("/user/signup/insert", {
-                    state: userVerifiedData,
-                });
-            } catch(err) {
-                console.error("간편인증 후 회원가입 진행 실패: ", err);
-            }
+            onVerified?.(userVerifiedData);
 
         } catch (err) {
             console.error("간편인증 실패: ", err);

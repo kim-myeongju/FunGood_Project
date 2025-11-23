@@ -60,11 +60,15 @@
   font-size: 1rem;
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition:
+    background-color 0.2s,
+    filter 0.25s ease,
+    transform 0.25s ease;
 }
 
 .user-box button:hover {
-  background-color: #eee2d3;
+  transform: scale(1.015);
+  filter: drop-shadow(0 0 7px rgba(112, 55, 44, 0.20));
 }
 
 /* 다른 페이지로 이동 */

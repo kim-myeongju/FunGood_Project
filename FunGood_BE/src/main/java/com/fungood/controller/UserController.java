@@ -3,16 +3,14 @@ package com.fungood.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fungood.dto.user.LoginRequest;
+import com.fungood.dto.user.SignUpRequest;
 import com.fungood.entity.User;
 import com.fungood.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
@@ -105,22 +103,60 @@ public class UserController {
     }
 
     // 회원가입 API
-    @GetMapping("/signup/chkId")
-    public ResponseEntity<Boolean> checkId(String userId) {
+    @PostMapping("/signup/chkId")
+    public ResponseEntity<Boolean> checkId(@RequestBody Map<String, String> body) {
         // 아이디 중복 검사
-        return null;
+        boolean isIdAvailable = false;
+        String findUserId = userService.getUserIdById(body.get("userId"));
+
+        if (findUserId == null) {
+            isIdAvailable = true;
+        }
+
+        return ResponseEntity.ok(isIdAvailable);
     }
     
-    @GetMapping("/signup/chkEmail")
-    public ResponseEntity<Boolean> checkEmail(String email) {
+    @PostMapping("/signup/chkEmail")
+    public ResponseEntity<Boolean> checkEmail(@RequestBody Map<String, String> body) {
         // 이메일 중복 검사
-        return null;
+        boolean isEmailAvailable = false;
+        String findUserEmail = userService.getUserEmailByEmail(body.get("email"));
+
+        if (findUserEmail == null) {
+            isEmailAvailable = true;
+        }
+
+        return ResponseEntity.ok(isEmailAvailable);
     }
     
     @PostMapping("/signup/insert")
-    public ResponseEntity<Map<String, Object>> signupComplete() {
+    public ResponseEntity<Map<String, Object>> signupComplete(@RequestBody SignUpRequest request) {
         // 비밀번호 암호화 -> 회원 가입 완료
-        return null;
+        int res = userService.insertUser(request);
+
+        Map<String, Object> responseBody = new HashMap<>();
+
+        if (res > 0) {
+            responseBody.put("status", "success");
+            responseBody.put("userName", request.getUserName());
+            return ResponseEntity.ok(responseBody);
+        } else {
+            responseBody.put("error", "회원가입 실패");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseBody);
+        }
+    }
+
+    // 회원가입 시 간편인증 후 유저가 존재하는지 확인
+    @GetMapping("/portone/is-exist")
+    public ResponseEntity<Boolean> isExistUser(@RequestParam String phone) {
+        boolean isExist = false;
+        User user = userService.getUserByPhone(phone);
+
+        if (user != null) {
+            isExist = true;
+        }
+
+        return ResponseEntity.ok(isExist);
     }
 
     // 로그인 API

@@ -9,4 +9,19 @@
         SELECT * FROM USERS WHERE USER_ID = #{userId}
     </select>
 
+    <select id="findUserByEmail" resultType="User">
+        SELECT * FROM USERS WHERE EMAIL = #{email}
+    </select>
+
+    <select id="findUserByPhone" resultType="User">
+        SELECT * FROM USERS WHERE PHONE = #{phone}
+    </select>
+
+    <insert id="insertUser" parameterType="com.fungood.dto.user.SignUpRequest">
+        INSERT INTO USERS
+        VALUES (
+            #{userId}, #{userPw}, #{userName}, #{email}, #{phone}, #{birth}, NOW(), 'ROLE_USER', 'Y', 'GREEN', 0
+        )
+    </insert>
+
 </mapper>
