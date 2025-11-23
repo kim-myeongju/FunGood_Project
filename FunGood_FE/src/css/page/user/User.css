@@ -27,10 +27,17 @@
 }
 
 /* 입력창 */
+.user-box form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
 .user-box input {
   width: 100%;
-  padding: 12px 14px;
-  margin-bottom: 1rem;
+  height: 2.7rem;
+  padding: 0.8rem 1rem;
+  /* margin-bottom: 1rem; */
   border: 1px solid #ddd;
   border-radius: 8px;
   font-size: 1rem;
@@ -46,7 +53,7 @@
 /* 버튼 */
 .user-box button {
   width: 100%;
-  padding: 12px;
+  padding: 1rem;
   background-color: #70372c;
   border: none;
   color: white;
@@ -71,4 +78,27 @@
   text-decoration: none;
   color: #4a4a4a;
   padding: 0 1rem;
+}
+
+/* 중복확인 영역 */
+.user-box .duplication-chk {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+  height: auto;
+  align-items: stretch;
+}
+
+.user-box .duplication-chk input {
+  flex: 8;
+}
+
+.user-box .duplication-chk button {
+  height: 2.7rem;
+  font-size: 0.8rem;
+  display: flex;
+  box-sizing: border-box;
+  justify-content: center;
+  align-items: center;
+  flex: 2;
 }

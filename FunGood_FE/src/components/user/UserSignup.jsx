@@ -1,8 +1,14 @@
 // 간편인증 후 회원가입
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 function UserSignup() {
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    const verifiedData = location.state;
+
     const [userId, setUserId] = useState('');
     const [userPw, setUserPw] = useState('');
     const [userName, setUserName] = useState('');
@@ -10,44 +16,86 @@ function UserSignup() {
     const [phone, setPhone] = useState('');
     const [birth, setBirth] = useState('');
 
-    const handleSignup = async (e) => {
+    // 간편인증으로 넘어온 데이터 자동 입력
+    useEffect(() => {
+        if(verifiedData) {
+            setUserName(verifiedData.name || '');
+            setPhone(verifiedData.phone || '');
+            setBirth(verifiedData.birth || '');
+        }
+    }, [verifiedData]);
 
+    const handleIdChk = async (e) => {
+        // 아이디 중복 체크
+    }
+
+    const handleEmailChk = async (e) => {
+        // 이메일 중복 체크
+    }
+
+    const handleSignup = async (e) => {
+        e.preventDefault();
+
+        const requestData = {
+            userId,
+            userPw,
+            userName,
+            email,
+            phone,
+            birth,
+        };
+
+        // 회원가입 요청
+        // try {
+        //     const response = await axios.post("http://localhost:8080/user/signup/insert", requestData);
+
+        //     navigate("/");
+        // } catch(err) {
+        //     console.error("회원 가입 실패 : ", err);
+        // }
     }
 
     return (
         <>
             <form onSubmit={handleSignup}>
-                <input 
-                    type="text"
-                    placeholder="Please enter your ID"
-                    value={userId}
-                    onChange={(e) => setUserId(e.target.value)}
-                    required
-                />
+                <div className="duplication-chk">
+                    <input 
+                        type="text"
+                        placeholder="Enter your ID"
+                        value={userId}
+                        onChange={(e) => setUserId(e.target.value)}
+                        required
+                    />
+                    <button type="button" onClick={handleIdChk}>중복확인</button>
+                </div>
+
                 <input 
                     type="password"
-                    placeholder="Please enter your password"
+                    placeholder="Enter your password"
                     value={userPw}
                     onChange={(e) => setUserPw(e.target.value)}
                     required
                 />
                 <input 
                     type="text"
-                    placeholder="Please enter your name"
+                    placeholder="Enter your name"
                     value={userName}
                     onChange={(e) => setUserName(e.target.value)}
                     required
                 />
+                <div className="duplication-chk">
+                    <input 
+                        type="text"
+                        placeholder="Enter your email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
+                    <button type="button" onClick={handleEmailChk}>중복확인</button>
+                </div>
                 <input 
                     type="text"
-                    placeholder="Please enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                />
-                <input 
-                    type="text"
-                    placeholder="Please enter your phone number"
+                    placeholder="Enter your phone number"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     required
@@ -58,7 +106,7 @@ function UserSignup() {
                     onChange={(e) => setBirth(e.target.value)}
                     required
                 />
-                <button type="submit">회원가입</button>
+                <button className="submit-btn" type="submit">회원가입</button>
             </form>
         </>
     )

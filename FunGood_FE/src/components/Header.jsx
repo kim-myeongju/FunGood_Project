@@ -9,8 +9,7 @@ function Header() {
             <div className="header-top">
                 <Link className="header-logo" to='/'>FunGood</Link>
                 <div className="header-links">
-                    {/* <Link to='/user/signup/verify'>SIGNUP</Link> */}
-                    <Link to='/user/signup/insert'>SIGNUP</Link>
+                    <Link to='/user/signup/verify'>SIGNUP</Link>
                     <Link to='/user/login/input'>LOGIN</Link>
                 </div>
             </div>
