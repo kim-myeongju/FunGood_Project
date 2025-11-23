@@ -12,7 +12,7 @@ function LoginPage() {
                 <Outlet />
                 <div className="go-to-link">
                     <Link className="user-font" to='/'>홈으로</Link>
-                    <Link className="user-font" to='/user/login/verify'>아이디찾기</Link>
+                    <Link className="user-font" to='/user/login/verify' state={{redirectTo: "/user/login/findid"}}>아이디찾기</Link>
                     <Link className="user-font" to='/user/login/changepw'>비밀번호변경</Link>
                 </div>
             </div>

@@ -28,7 +28,7 @@ function UserLogin() {
                     onChange={(e) => setUserPw(e.target.value)}
                     required
                 />
-                <button type="submit">로그인</button>
+                <button className="submit-btn" type="submit">로그인</button>
             </form>
         </>
     )

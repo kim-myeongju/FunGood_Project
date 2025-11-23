@@ -1,5 +1,6 @@
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
+import UserVerifyRoute from './pages/user/UserVerifyRoute';
 // 로그인 관련
 import LoginPage from './pages/user/LoginPage';
 import UserLogin from './components/user/UserLogin';
@@ -28,15 +29,18 @@ function App() {
 
           {/* 회원가입 페이지 */}
           <Route path='/user/signup' element={<SignupPage />}>
-            <Route path='/user/signup/verify' element={<UserVerify />} />
-            <Route path='/user/signup/insert' element={<UserSignup />} />
+            <Route index element={<Navigate to="verify" replace />} />
+            <Route path='verify' element={<UserVerifyRoute />} />
+            <Route path='insert' element={<UserSignup />} />
           </Route>
 
           {/* 로그인 페이지 */}
           <Route path='/user/login' element={<LoginPage />}>
-            <Route path='/user/login/input' element={<UserLogin />} />
-            <Route path='/user/login/verify' element={<UserVerify /> } />
-            <Route path='/user/login/changepw' element={<UserChangePw />} />
+            <Route index element={<Navigate to="input" replace />} />
+            <Route path='input' element={<UserLogin />} />
+            <Route path='verify' element={<UserVerifyRoute /> } />
+            <Route path='findid' element={<UserFindId />} />
+            <Route path='changepw' element={<UserChangePw />} />
           </Route>
 
           {/* 관리자 페이지 */}
