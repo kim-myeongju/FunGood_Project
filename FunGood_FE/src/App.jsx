@@ -1,54 +1,69 @@
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import Home from './pages/Home';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './routes/ProtectedRoute';
+import LogoutOnlyRoute from './routes/LogoutOnlyRoute';
+
 import UserVerifyRoute from './pages/user/UserVerifyRoute';
+
+import Home from './pages/Home';
+import CategoryPopular from './pages/test/CategoryPopular';
+import CategoryNew from './pages/test/CategoryNew';
+
 // 로그인 관련
 import LoginPage from './pages/user/LoginPage';
 import UserLogin from './components/user/UserLogin';
 import UserFindId from './components/user/UserFindId';
 import UserChangePw from './components/user/UserChangePw';
+
 // 회원가입 관련
 import SignupPage from './pages/user/SignupPage';
 import UserVerify from './components/user/UserVerify';
 import UserSignup from './components/user/UserSignup';
-import AmdinPage from './pages/admin/AdminPage';
+
+import AdminPage from './pages/admin/AdminPage';
+
 import "./css/App.css";
-import CategoryPopular from './pages/test/CategoryPopular';
-import CategoryNew from './pages/test/CategoryNew';
 
 function App() {
 
   return (
-    <Router>
-      <div className='container'>
-        <Routes>
-          {/* 홈 페이지 */}
-          <Route path='/' element={<Home />}>
-            <Route path='/category/popular' element={<CategoryPopular />} />
-            <Route path='/category/new' element={<CategoryNew />} />
-          </Route>
+    <AuthProvider>
+      <Router>
+        <div className='container'>
+          <Routes>
+            {/* 공개 라우트 */}
+            <Route path='/' element={<Home />}>
+              <Route path='/category/popular' element={<CategoryPopular />} />
+              <Route path='/category/new' element={<CategoryNew />} />
+            </Route>
 
-          {/* 회원가입 페이지 */}
-          <Route path='/user/signup' element={<SignupPage />}>
-            <Route index element={<Navigate to="verify" replace />} />
-            <Route path='verify' element={<UserVerifyRoute />} />
-            <Route path='insert' element={<UserSignup />} />
-          </Route>
+            {/* 로그인/회원가입은 로그인 상태면 접근 못 하도록 */}
+            <Route element={<LogoutOnlyRoute />}>
+              <Route path='/user/login' element={<LoginPage />}>
+                <Route index element={<Navigate to="input" replace />} />
+                <Route path='input' element={<UserLogin />} />
+                <Route path='verify' element={<UserVerifyRoute /> } />
+                <Route path='findid' element={<UserFindId />} />
+                <Route path='changepw' element={<UserChangePw />} />
+              </Route>
 
-          {/* 로그인 페이지 */}
-          <Route path='/user/login' element={<LoginPage />}>
-            <Route index element={<Navigate to="input" replace />} />
-            <Route path='input' element={<UserLogin />} />
-            <Route path='verify' element={<UserVerifyRoute /> } />
-            <Route path='findid' element={<UserFindId />} />
-            <Route path='changepw' element={<UserChangePw />} />
-          </Route>
+              <Route path='/user/signup' element={<SignupPage />}>
+                <Route index element={<Navigate to="verify" replace />} />
+                <Route path='verify' element={<UserVerify />} />
+                <Route path='insert' element={<UserSignup />} />
+              </Route>
+            </Route>
 
-          {/* 관리자 페이지 */}
-          <Route path='/admin' element={<AmdinPage />} />
-        </Routes>
-      </div>
-    </Router>
-  )
+            {/* 보호 라우트 (엑세스 토큰 없으면 /user/login 으로 이동) */}
+            <Route element={<ProtectedRoute />}>
+              <Route path='/admin' element={<AdminPage />} />
+              {/* 로그인 필요 페이지들 추가 */}
+            </Route>
+          </Routes>
+        </div>
+      </Router>
+    </AuthProvider>
+  );
 }
 
 export default App
