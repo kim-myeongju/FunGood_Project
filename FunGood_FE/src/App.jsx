@@ -1,35 +1,74 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './routes/ProtectedRoute';
+import LogoutOnlyRoute from './routes/LogoutOnlyRoute';
+
+import UserVerifyRoute from './pages/user/UserVerifyRoute';
+
+import Home from './pages/Home';
+import CategoryPopular from './pages/test/CategoryPopular';
+import CategoryNew from './pages/test/CategoryNew';
+
+// 로그인
+import LoginPage from './pages/user/LoginPage';
+import UserLogin from './components/user/UserLogin';
+import UserFindId from './components/user/UserFindId';
+import UserChangePw from './components/user/UserChangePw';
+
+// 회원가입
+import SignupPage from './pages/user/SignupPage';
+import UserVerify from './components/user/UserVerify';
+import UserSignup from './components/user/UserSignup';
+
+// 마이페이지
+import MyPage from './pages/mypage/MyPage';
+
+// 관리자
+import AdminPage from './pages/admin/AdminPage';
+
+import "./css/App.css";
 
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <AuthProvider>
+      <Router>
+        <div className='container'>
+          <Routes>
+            {/* 공개 라우트 */}
+            <Route path='/' element={<Home />}>
+              <Route path='/category/popular' element={<CategoryPopular />} />
+              <Route path='/category/new' element={<CategoryNew />} />
+            </Route>
+
+            {/* 로그인/회원가입은 로그인 상태면 접근 못 하도록 */}
+            <Route element={<LogoutOnlyRoute />}>
+              <Route path='/user/login' element={<LoginPage />}>
+                <Route index element={<Navigate to="input" replace />} />
+                <Route path='input' element={<UserLogin />} />
+                <Route path='verify' element={<UserVerifyRoute /> } />
+                <Route path='findid' element={<UserFindId />} />
+                <Route path='changepw' element={<UserChangePw />} />
+              </Route>
+
+              <Route path='/user/signup' element={<SignupPage />}>
+                <Route index element={<Navigate to="verify" replace />} />
+                <Route path='verify' element={<UserVerify />} />
+                <Route path='insert' element={<UserSignup />} />
+              </Route>
+            </Route>
+
+            {/* 보호 라우트 (엑세스 토큰 없으면 /user/login 으로 이동) */}
+            <Route element={<ProtectedRoute />}>
+              <Route path='/admin' element={<AdminPage />} />
+              <Route path='/mypage/home' element={<MyPage />} />
+              {/* 로그인 필요 페이지들 추가 */}
+            </Route>
+          </Routes>
+        </div>
+      </Router>
+    </AuthProvider>
+  );
 }
 
 export default App

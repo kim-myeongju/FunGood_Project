@@ -1,8 +1,19 @@
-## 🍨굿즈 펀딩 서비스
+## 🍨Goods Funding Service
+### [ A platform that connects buyers and creators ]
 
-#### 펀딩 기간동안 굿즈 구매 서비스 (다이어리, 문구류, 애니 굿즈, 선물용 디저트 등), like 텀블벅
-##### ➡️펀딩 일자 스케줄러 카운딩 : 펀딩 예정, 펀딩 중, 펀딩 종료
-##### ➡️펀딩 시작 대기열 : 펀딩 시작과 동시의 트래픽
-##### ➡️JWT토큰 보안 : 엑세스토큰, 리프레시토큰 -> 엑세스토큰 검증 및 재발급, 리프레시토큰 검증 및 만료, 동시로그인 처리
-##### ➡️결제 프로세스 Redis & LuaScript : 수량 및 옵션 변경 시의 구매자와 판매자의 원자적 처리
+### During the funding period, goods purchase service (diaries, stationery, anime goods, gift desserts, etc.)
+#### ➡️Simple Auth : sign up & find id
+#### ➡️login : create & save user session
+#### ➡️funding open scheduler counting : Funding Scheduled, Funding in Progress, Funding Completed
+#### ➡️Funding Start Queue: Traffic simultaneous with the start of funding
+#### ➡️JWT Security : generate access / refresh token (access token validate & refresh, refresh token validate & logout, simultaneous login)
+#### ➡️payment process (Redis & LuaScript) : Atomic processing of buyers and sellers when changing quantities and options
 
+## 🎨Tech Stack
+
+### Backend : Java, SpringBoot
+### Frontend : JavaScript, React
+### database : MySQL, Redis
+### Tool : IntelliJ, Visual Studio Code
+### Security : SpringSecurity, Jwt, SocialLogin(OAuth)
+### API : PortOne, . . .
