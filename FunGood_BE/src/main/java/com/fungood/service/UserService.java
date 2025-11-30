@@ -25,6 +25,10 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtRedisUtil jwtRedisUtil;
 
+    public User getUserByUserId(String userId) {
+        return userMapper.findUserByUserId(userId);
+    }
+
     public String getUserIdById(String id) {
         String userId = null;
         User user = userMapper.findUserByUserId(id);
@@ -75,6 +79,7 @@ public class UserService {
 
         // user's login session saved in redis
         jwtRedisUtil.saveLoginSession(user.getUserId(), sid, refreshToken, loginTime);
+        log.info("사용자 로그인 세션 Redis 에 저장 완료");
 
         return new LoginResponse(sid, accessToken, refreshToken, loginTime);
     }
