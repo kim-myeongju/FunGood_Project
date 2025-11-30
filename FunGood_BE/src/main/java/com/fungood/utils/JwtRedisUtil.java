@@ -49,6 +49,11 @@ public class JwtRedisUtil {
         return result;
     }
 
+    public String getSidFromRedis(String userId) {
+        Map<String, String > redisData = getLoginUserInfo(userId);
+        return redisData.get("current_sid");
+    }
+
     public void deleteLoginSession(String userId) {
         redisTemplate.delete(PREFIX + userId);
     }

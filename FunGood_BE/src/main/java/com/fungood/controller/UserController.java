@@ -9,7 +9,10 @@ import com.fungood.entity.User;
 import com.fungood.exception.LoginException;
 import com.fungood.service.UserService;
 import com.fungood.utils.CookieUtil;
+import com.fungood.utils.JwtRedisUtil;
 import com.fungood.utils.JwtTokenProvider;
+import com.fungood.utils.ValidateUserInfo;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +43,9 @@ public class UserController {
 
     private final UserService userService;
     private final CookieUtil cookieUtil;
+    private final JwtRedisUtil jwtRedisUtil;
     private final JwtTokenProvider jwtTokenProvider;
+    private final ValidateUserInfo validateUserInfo;
 
     // 포트원 간편인증 API
     // 간편인증 포트원 정보 반환
@@ -178,6 +183,8 @@ public class UserController {
             cookieUtil.createCookie(response, "current_sid", loginResponse.getSid());
             cookieUtil.createCookie(response, "refresh_token", loginResponse.getRefreshToken());
             cookieUtil.createCookie(response, "login_time", loginResponse.getLoginTime());
+            
+            log.info("사용자 세션 쿠키에 저장 완료");
 
             return ResponseEntity.ok(Map.of("status", "success", "access_token", loginResponse.getAccessToken()));
         } catch (LoginException le) {
@@ -208,12 +215,47 @@ public class UserController {
         }
 
         SecurityContextHolder.clearContext();
+        
+        log.info("로그아웃 성공");
 
         return ResponseEntity.ok(Map.of("status", "success", "message", "로그아웃 성공"));
     }
 
-    @PostMapping("/refresh")
-    public ResponseEntity<Map<String, Object>> refresh() {
+    @PostMapping("/validate")
+    public ResponseEntity<Map<String, Object>> validate() {
+        // 로그인 상태 검증
         return null;
+    }
+
+    // 엑세스 토큰 재발급
+    @PostMapping("/refresh")
+    public ResponseEntity<Map<String, Object>> refresh(HttpServletRequest request, HttpServletResponse response) {
+        String refreshToken = cookieUtil.getCookieValue(request, "refresh_token");
+
+        if (refreshToken == null || !jwtTokenProvider.validateToken(refreshToken)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "refresh token 만료"));
+        }
+
+        String userId = jwtTokenProvider.getUserIdFromToken(refreshToken);
+        String refreshTokenFromCookie = cookieUtil.getCookieValue(request, "refresh_token");
+        String loginTimeFromCookie = cookieUtil.getCookieValue(request, "login_time");
+        boolean valid = validateUserInfo.validateRefreshTokenInfo(refreshTokenFromCookie, loginTimeFromCookie, userId);
+
+        if (!valid) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "refresh token 검증 실패"));
+        }
+
+        User user = userService.getUserByUserId(userId);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "사용자가 없음"));
+        }
+
+        String sid = jwtRedisUtil.getSidFromRedis(userId);
+
+        String newAccessToken = jwtTokenProvider.generateAccessToken(userId, sid);
+
+        log.info("{} : access token refresh OK!", user.getUserId());
+
+        return ResponseEntity.ok(Map.of("status", "success", "access_token", newAccessToken));
     }
 }

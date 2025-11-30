@@ -28,7 +28,7 @@ function Header() {
                     {isAuthenticated ? (
                         <>
                             <button className="logout-btn" onClick={handleLogout}>LOGOUT</button>
-                            <Link to='/mypage'>MYPAGE</Link>
+                            <Link to='/mypage/home'>MYPAGE</Link>
                         </>
                     ) : (
                         <>

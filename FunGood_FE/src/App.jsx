@@ -9,17 +9,21 @@ import Home from './pages/Home';
 import CategoryPopular from './pages/test/CategoryPopular';
 import CategoryNew from './pages/test/CategoryNew';
 
-// 로그인 관련
+// 로그인
 import LoginPage from './pages/user/LoginPage';
 import UserLogin from './components/user/UserLogin';
 import UserFindId from './components/user/UserFindId';
 import UserChangePw from './components/user/UserChangePw';
 
-// 회원가입 관련
+// 회원가입
 import SignupPage from './pages/user/SignupPage';
 import UserVerify from './components/user/UserVerify';
 import UserSignup from './components/user/UserSignup';
 
+// 마이페이지
+import MyPage from './pages/mypage/MyPage';
+
+// 관리자
 import AdminPage from './pages/admin/AdminPage';
 
 import "./css/App.css";
@@ -57,6 +61,7 @@ function App() {
             {/* 보호 라우트 (엑세스 토큰 없으면 /user/login 으로 이동) */}
             <Route element={<ProtectedRoute />}>
               <Route path='/admin' element={<AdminPage />} />
+              <Route path='/mypage/home' element={<MyPage />} />
               {/* 로그인 필요 페이지들 추가 */}
             </Route>
           </Routes>
