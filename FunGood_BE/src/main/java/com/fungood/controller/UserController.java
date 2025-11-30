@@ -3,14 +3,20 @@ package com.fungood.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fungood.dto.user.LoginRequest;
+import com.fungood.dto.user.LoginResponse;
 import com.fungood.dto.user.SignUpRequest;
 import com.fungood.entity.User;
+import com.fungood.exception.LoginException;
 import com.fungood.service.UserService;
+import com.fungood.utils.CookieUtil;
+import com.fungood.utils.JwtTokenProvider;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
@@ -33,6 +39,8 @@ public class UserController {
     private String portOneApiSecret;
 
     private final UserService userService;
+    private final CookieUtil cookieUtil;
+    private final JwtTokenProvider jwtTokenProvider;
 
     // 포트원 간편인증 API
     // 간편인증 포트원 정보 반환
@@ -159,11 +167,53 @@ public class UserController {
         return ResponseEntity.ok(isExist);
     }
 
-    // 로그인 API
-    @GetMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequest loginRequest) {
-        // 로그인 시작!
-        User user = userService.login(loginRequest);
-        return ResponseEntity.ok(Map.of("status", "로그인 성공", "userName", user.getUserName(), "role", user.getUserRole()));
+    // Login API
+    @PostMapping("/login")
+    public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+
+        try {
+            LoginResponse loginResponse = userService.login(loginRequest);
+
+            // user login info saved in cookie
+            cookieUtil.createCookie(response, "current_sid", loginResponse.getSid());
+            cookieUtil.createCookie(response, "refresh_token", loginResponse.getRefreshToken());
+            cookieUtil.createCookie(response, "login_time", loginResponse.getLoginTime());
+
+            return ResponseEntity.ok(Map.of("status", "success", "access_token", loginResponse.getAccessToken()));
+        } catch (LoginException le) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("code", "INVALID_CREDENTIALS", "message", le.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "로그인 처리 중 에러 발생", "reason", e.getMessage()));
+        }
+    }
+
+    @PostMapping("logout")
+    public ResponseEntity<Map<String, Object>> logout(@RequestHeader(value="Authorization", required = false) String accessToken, @CookieValue(value="login_time") String loginTime, HttpServletResponse response) {
+        String userId = null;
+
+        try {
+            String token = jwtTokenProvider.tokenResolver(accessToken);
+            userId = jwtTokenProvider.getUserIdFromToken(token);
+        } catch (Exception e) {
+            log.warn("엑세스 토큰 파싱 실패, 로그아웃 계속 진행");
+        }
+
+        if (userId != null) {
+            userService.logout(userId);
+        }
+
+        String[] cookieNames = {"current_sid", "refresh_token", "login_time"};
+        for (String name : cookieNames) {
+            cookieUtil.deleteCookie(response, name);
+        }
+
+        SecurityContextHolder.clearContext();
+
+        return ResponseEntity.ok(Map.of("status", "success", "message", "로그아웃 성공"));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<Map<String, Object>> refresh() {
+        return null;
     }
 }

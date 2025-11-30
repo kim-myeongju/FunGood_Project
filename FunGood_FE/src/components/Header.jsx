@@ -1,16 +1,41 @@
-import { Link, redirect, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import axios from "axios";
+import { AuthContext } from "../context/AuthContext";
 
 function Header() {
 
     const location = useLocation();
+    const { isAuthenticated, setAccessToken } = useContext(AuthContext);
+    const navigate = useNavigate();
+
+    const handleLogout = async () => {
+        try {
+            await axios.post("http://localhost:8080/user/logout", null, {withCredentials: true});
+
+            setAccessToken(null);
+            navigate("/");
+        } catch(err) {
+            console.log("Logout Fail : ", err);
+        }
+    };
 
     return (
         <nav className="header">
             <div className="header-top">
                 <Link className="header-logo" to='/'>FunGood</Link>
                 <div className="header-links">
-                    <Link to='/user/signup/verify' state={{redirectTo: "/user/signup/insert"}}>SIGNUP</Link>
-                    <Link to='/user/login/input'>LOGIN</Link>
+                    {isAuthenticated ? (
+                        <>
+                            <button className="logout-btn" onClick={handleLogout}>LOGOUT</button>
+                            <Link to='/mypage'>MYPAGE</Link>
+                        </>
+                    ) : (
+                        <>
+                            <Link to='/user/signup/verify' state={{redirectTo: "/user/signup/insert"}}>SIGNUP</Link>
+                            <Link to='/user/login/input'>LOGIN</Link>
+                        </>
+                    )}
                 </div>
             </div>
             
