@@ -1,52 +1,126 @@
-import { createContext,  useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import { createContext, useEffect, useMemo, useRef, useState } from "react";
+import {
+  axiosInstance,
+  getStoredToken,
+  saveToken,
+  parseJwt,
+  scheduleTokenRefresh,
+  clearRefreshTimer,
+  tryRefreshImmediately,
+} from "../lib/api";
 
 export const AuthContext = createContext(null);
 
-export const AuthProvider = ({children}) => {
-    const [accessToken, setAccessToken] = useState(null);
-    const [initializing, setInitializing] = useState(true);
+export const AuthProvider = ({ children }) => {
+  const [accessToken, setAccessToken] = useState(null);
+  const [user, setUser] = useState(null);
+  const [initializing, setInitializing] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-    // 앱 첫 로드 시: refresh 쿠키로 새 access token 시도(있으면 자동 로그인)
-    useEffect(() => {
-        (async () => {
+  // 부팅 1회 플래그 (validate/refresh 루프 중복 방지)
+  const bootstrappedRef = useRef(false);
+
+  function setTokenEverywhere(token) {
+    setAccessToken(token);
+    saveToken(token);
+  }
+
+  function getRolesFromToken(token) {
+    const payload = parseJwt(token);
+    const raw = payload.roles;
+    return Array.isArray(raw) ? raw : raw ? [raw] : [];
+  }
+
+  useEffect(() => {
+    if (bootstrappedRef.current) return;
+    bootstrappedRef.current = true;
+
+    (async () => {
+      try {
+        const savedToken = getStoredToken();
+        if (savedToken) {
+          setAccessToken(savedToken);
+
+          try {
+            const { data } = await axiosInstance.post("/user/validate", {}, { withCredentials: true });
+            if (Array.isArray(data.roles)) {
+              setUser({ roles: data.roles });
+            } else {
+              setUser({ roles: getRolesFromToken(savedToken) });
+            }
+          } catch {
             try {
-                const {data} = await axios.post("http://localhost:8080/user/refresh", null, {withCredentials: true});
-                if(data?.accessToken || data?.access_token) {
-                    setAccessToken(data.accessToken ?? data.access_token);
-                }
+              setIsRefreshing(true);
+              const newAccessToken = await tryRefreshImmediately();
+              setTokenEverywhere(newAccessToken);
+              setUser({ roles: getRolesFromToken(newAccessToken) });
             } catch {
-                // fail refresh -> logout or no login state
+              setTokenEverywhere(null);
+              setUser(null);
             } finally {
-                setInitializing(false);
+              setIsRefreshing(false);
             }
-        })();
-    }, []);
+          }
 
-    // axios 요청에 access token 자동 첨부
-    useEffect(() => {
-        const id = axios.interceptors.request.use((config) => {
-            const token = accessToken;
-            if(token) {
-                config.headers = config.headers ?? {};
-                config.headers.Authorization = `Bearer ${token}`;
-            }
-            config.withCredentials = true;
-            return config;
-        });
-        return () => axios.interceptors.request.eject(id);
-    }, [accessToken]);
+          if (getStoredToken()) {
+            scheduleTokenRefresh(getStoredToken(), 10);
+          }
+        } else {
+          // 저장된 토큰 없음 비로그인
+          setUser(null);
+        }
+      } finally {
+        setInitializing(false);
+      }
+    })();
+  }, []);
 
-    const value = useMemo(() => ({
-        accessToken,
-        setAccessToken,
-        isAuthenticated: !!accessToken,
-        initializing
-    }), [accessToken, initializing]);
+  useEffect(() => {
+    if (!accessToken) {
+      // 비로그인 정리
+      setUser(null);
+      clearRefreshTimer();
+      return;
+    }
 
-    return (
-        <AuthContext.Provider value={value}>
-            {children}
-        </AuthContext.Provider>
-    );
-};
+    const roles = getRolesFromToken(accessToken);
+    if (!Array.isArray(user?.roles) || user.roles.length === 0) {
+      setUser({ roles });
+    }
+
+    scheduleTokenRefresh(accessToken, 10);
+  }, [accessToken]);
+
+  async function onLoginSuccess(newAccessToken) {
+    setTokenEverywhere(newAccessToken);
+    setUser({ roles: getRolesFromToken(newAccessToken) });
+    scheduleTokenRefresh(newAccessToken, 10);
+  }
+
+  const logout = async () => {
+    try {
+      await axiosInstance.post("/user/logout", null, { withCredentials: true });
+    } catch { }
+    clearRefreshTimer();
+    setTokenEverywhere(null);
+    setUser(null);
+  };
+
+  const value = useMemo(
+    () => ({
+      accessToken,
+      user,
+      isAuthenticated: !!accessToken,
+      initializing,
+      isRefreshing,
+
+      onLoginSuccess,
+      logout,
+      setAccessToken: setTokenEverywhere,
+      setUser,
+    }),
+    [accessToken, user, initializing, isRefreshing]
+  );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
