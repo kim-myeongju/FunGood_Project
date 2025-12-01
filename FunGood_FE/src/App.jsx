@@ -5,6 +5,7 @@ import LogoutOnlyRoute from './routes/LogoutOnlyRoute';
 
 import UserVerifyRoute from './pages/user/UserVerifyRoute';
 
+// 홈 메인 페이지
 import Home from './pages/Home';
 import CategoryPopular from './pages/test/CategoryPopular';
 import CategoryNew from './pages/test/CategoryNew';
@@ -17,7 +18,6 @@ import UserChangePw from './components/user/UserChangePw';
 
 // 회원가입
 import SignupPage from './pages/user/SignupPage';
-import UserVerify from './components/user/UserVerify';
 import UserSignup from './components/user/UserSignup';
 
 // 마이페이지
@@ -46,22 +46,25 @@ function App() {
               <Route path='/user/login' element={<LoginPage />}>
                 <Route index element={<Navigate to="input" replace />} />
                 <Route path='input' element={<UserLogin />} />
-                <Route path='verify' element={<UserVerifyRoute /> } />
+                <Route path='verify' element={<UserVerifyRoute mode="login" />} />
                 <Route path='findid' element={<UserFindId />} />
                 <Route path='changepw' element={<UserChangePw />} />
               </Route>
 
               <Route path='/user/signup' element={<SignupPage />}>
                 <Route index element={<Navigate to="verify" replace />} />
-                <Route path='verify' element={<UserVerify />} />
+                <Route path='verify' element={<UserVerifyRoute mode="signup" />} />
                 <Route path='insert' element={<UserSignup />} />
               </Route>
             </Route>
 
             {/* 보호 라우트 (엑세스 토큰 없으면 /user/login 으로 이동) */}
-            <Route element={<ProtectedRoute />}>
-              <Route path='/admin' element={<AdminPage />} />
-              <Route path='/mypage/home' element={<MyPage />} />
+            <Route element={<ProtectedRoute requireRoles={["ROLE_ADMIN"]} />}>
+              <Route path="/admin" element={<AdminPage />} />
+            </Route>
+
+            <Route element={<ProtectedRoute requireRoles={["ROLE_USER", "ROLE_ADMIN"]} />}>
+              <Route path="/mypage/home" element={<MyPage />} />
               {/* 로그인 필요 페이지들 추가 */}
             </Route>
           </Routes>

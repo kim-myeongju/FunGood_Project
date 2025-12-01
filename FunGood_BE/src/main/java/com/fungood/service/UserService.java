@@ -73,7 +73,7 @@ public class UserService {
         }
 
         String sid = UUID.randomUUID().toString();
-        String accessToken = jwtTokenProvider.generateAccessToken(user.getUserId(), sid);
+        String accessToken = jwtTokenProvider.generateAccessToken(user.getUserId(), sid, user.getUserRole());
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getUserId());
         String loginTime = String.valueOf(System.currentTimeMillis());
 

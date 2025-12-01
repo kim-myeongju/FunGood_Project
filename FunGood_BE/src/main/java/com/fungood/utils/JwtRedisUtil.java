@@ -35,7 +35,8 @@ public class JwtRedisUtil {
 
         List<String> keys = Collections.singletonList(PREFIX + userId);
 
-        redisTemplate.execute(redisScript, keys, sid, refreshToken, loginTime, String.valueOf(JwtTokenProvider.EXPIRATION_1D));
+//        redisTemplate.execute(redisScript, keys, sid, refreshToken, loginTime, String.valueOf(JwtTokenProvider.EXPIRATION_1D));
+        redisTemplate.execute(redisScript, keys, sid, refreshToken, loginTime, "50000");
     }
 
     public Map<String, String> getLoginUserInfo(String userId) {
