@@ -6,7 +6,7 @@ import { AuthContext } from "../../context/AuthContext";
 
 function UserLogin() {
 
-  const { saveTokenLocalStorage } = useContext(AuthContext);
+  const { onLoginSuccess } = useContext(AuthContext);
   const [userId, setUserId] = useState('');
   const [userPw, setUserPw] = useState('');
   const navigate = useNavigate();
@@ -30,9 +30,9 @@ function UserLogin() {
         alert("로그인 처리 오류 : 토큰이 없습니다.");
         return;
       }
-      saveTokenLocalStorage(accessToken);
 
-      navigate("/");
+      await onLoginSuccess(accessToken);
+      navigate("/", { replace: true });
     } catch (err) {
       if (err.response) {
         if (err.response.status === 401) {
