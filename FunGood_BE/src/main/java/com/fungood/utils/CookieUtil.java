@@ -13,7 +13,8 @@ public class CookieUtil {
         Cookie cookie = new Cookie(name, value);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
-        cookie.setMaxAge((int) JwtTokenProvider.EXPIRATION_1D / 1000);
+//        cookie.setMaxAge((int) JwtTokenProvider.EXPIRATION_1D / 1000);
+        cookie.setMaxAge(50);
         response.addCookie(cookie);
     }
 

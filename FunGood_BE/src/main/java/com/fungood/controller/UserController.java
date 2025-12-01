@@ -233,6 +233,7 @@ public class UserController {
         String refreshToken = cookieUtil.getCookieValue(request, "refresh_token");
 
         if (refreshToken == null || !jwtTokenProvider.validateToken(refreshToken)) {
+            log.warn("리프레시토큰 없거나 만료 -> 재발급 불가");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "refresh token 만료"));
         }
 
@@ -252,9 +253,9 @@ public class UserController {
 
         String sid = jwtRedisUtil.getSidFromRedis(userId);
 
-        String newAccessToken = jwtTokenProvider.generateAccessToken(userId, sid);
+        String newAccessToken = jwtTokenProvider.generateAccessToken(userId, sid, user.getUserRole());
 
-        log.info("{} : access token refresh OK!", user.getUserId());
+        log.info("{} : 엑세스토큰 재발급 완료", user.getUserId());
 
         return ResponseEntity.ok(Map.of("status", "success", "access_token", newAccessToken));
     }

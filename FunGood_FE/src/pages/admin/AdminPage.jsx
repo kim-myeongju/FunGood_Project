@@ -1,9 +1,9 @@
 function AmdinPage() {
-    return (
-        <div className="home">
-            Admin Page
-        </div>
-    )
+  return (
+    <div className="home">
+      Admin Page
+    </div>
+  )
 }
 
 export default AmdinPage;

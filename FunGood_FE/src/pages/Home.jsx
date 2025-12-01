@@ -7,18 +7,18 @@ import "../css/component/Footer.css";
 
 function Home() {
 
-    return (
-        <div>
-            <Header />
+  return (
+    <div>
+      <Header />
 
-            <div className="home-container">
-                {/* 콘텐츠 영역 */}
-                <Outlet />
-            </div>
+      <div className="home-container">
+        {/* 콘텐츠 영역 */}
+        <Outlet />
+      </div>
 
-            <Footer />
-        </div>
-    )
+      <Footer />
+    </div>
+  )
 }
 
 export default Home;
