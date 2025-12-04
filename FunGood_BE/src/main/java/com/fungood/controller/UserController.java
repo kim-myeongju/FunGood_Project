@@ -19,11 +19,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -223,8 +225,22 @@ public class UserController {
 
     @PostMapping("/validate")
     public ResponseEntity<Map<String, Object>> validate() {
-        // 로그인 상태 검증
-        return null;
+        // 로그인 상태 true, 비로그인 상태 false
+        Map<String, Object> response = new HashMap<>();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isLoggedIn = authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof User;
+
+        if (!isLoggedIn) {
+            response.put("status", false);
+            response.put("message", "login NO");
+        } else {
+            User user = (User) authentication.getPrincipal();
+            response.put("status", true);
+            response.put("roles", List.of(user.getUserRole()));
+            response.put("message", "login OK");
+        }
+
+        return ResponseEntity.ok(response);
     }
 
     // 엑세스 토큰 재발급

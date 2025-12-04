@@ -42,11 +42,17 @@ export const AuthProvider = ({ children }) => {
           setAccessToken(savedToken);
 
           try {
-            const { data } = await axiosInstance.post("/user/validate", {}, { withCredentials: true });
-            if (Array.isArray(data.roles)) {
-              setUser({ roles: data.roles });
+            const { data } = await axiosInstance.post("/user/validate", {});
+            if(data.status === true) {
+              if (Array.isArray(data.roles)) {
+                setUser({ roles: data.roles });
+                console.log(data.roles);
+              } else {
+                setUser({ roles: getRolesFromToken(savedToken) });
+              }
             } else {
-              setUser({ roles: getRolesFromToken(savedToken) });
+              setTokenEverywhere(null);
+              setUser(null);
             }
           } catch {
             try {

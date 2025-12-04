@@ -125,7 +125,7 @@ axiosInstance.interceptors.response.use(
           subscribeTokenRefresh((newAccessToken) => {
             if (!newAccessToken) return reject(error);
             original.headers = original.headers ?? {};
-            original.headers.Authorization = `Bearer ${newToken}`;
+            original.headers.Authorization = `Bearer ${newAccessToken}`;
             resolve(axiosInstance(original));
           });
         });
